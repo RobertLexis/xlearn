@@ -25,19 +25,23 @@ This file defines the basic hyper-parameters used by xLearn.
 
 #include "src/data/data_structure.h"
 
-namespace xLearn {
+namespace xLearn
+{
 
 //------------------------------------------------------------------------------
 // We use a single data structure - HyperParam to handle all of
 // the hyper parameters used by xLearn.
 //------------------------------------------------------------------------------
-struct HyperParam {
-//------------------------------------------------------------------------------
-// Baisc parameters for current task
-//------------------------------------------------------------------------------
+struct HyperParam
+{
+  //------------------------------------------------------------------------------
+  // Baisc parameters for current task
+  //------------------------------------------------------------------------------
   /* Train or Predict.
   True for train, and false for predict. */
   bool is_train = true;
+
+  bool is_embedding = false;
   /* On-disk training for limited memory.
   True for on-disk training, and false for in-memory training. */
   bool on_disk = false;
@@ -57,9 +61,9 @@ struct HyperParam {
   std::string metric = "none";
   /* Number of thread existing in the thread pool */
   int thread_number = 0;
-//------------------------------------------------------------------------------
-// Parameters for optimization method
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  // Parameters for optimization method
+  //------------------------------------------------------------------------------
   /* Optimization method */
   std::string opt_type = "adagrad";
   /* auxiliary size for gradient cache */
@@ -83,9 +87,9 @@ struct HyperParam {
   bool norm = true;
   /* Using lock-free AdaGard to accelerate training */
   bool lock_free = true;
-//------------------------------------------------------------------------------
-// Parameters for dataset
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  // Parameters for dataset
+  //------------------------------------------------------------------------------
   /* Number of feature */
   index_t num_feature = 0;
   /* Number of total model parameters */
@@ -104,11 +108,11 @@ struct HyperParam {
   This value can be empty. */
   std::string validate_set_file;
   /* DMatrix pointer for train*/
-  xLearn::DMatrix* train_dataset = nullptr;
+  xLearn::DMatrix *train_dataset = nullptr;
   /* DMatrix pointer for test*/
-  xLearn::DMatrix* test_dataset = nullptr;
+  xLearn::DMatrix *test_dataset = nullptr;
   /* DMatrix pointer for validate*/
-  xLearn::DMatrix* valid_dataset = nullptr;
+  xLearn::DMatrix *valid_dataset = nullptr;
 
   /* Filename of model checkpoint
   On default, model_file = train_set_file + ".model" */
@@ -121,6 +125,10 @@ struct HyperParam {
   /* Filename of output result for prediction
   output_file = test_set_file + ".out" */
   std::string output_file;
+
+  /* Filename of white list*/
+  std::string white_list_file;
+
   /* Filename of log file */
 #ifndef _MSC_VER
   std::string log_file = "/tmp/xlearn_log";
@@ -128,7 +136,7 @@ struct HyperParam {
   std::string log_file = "xlearn_log";
 #endif
   /* Block size for on-disk training */
-  int block_size = 500;  // 500 MB
+  int block_size = 500; // 500 MB
   /* If generate bin file */
   bool bin_out = true;
   /* Random seed to shuffle data set */
@@ -137,9 +145,9 @@ struct HyperParam {
   bool from_file = true;
   /* If generate prediction file */
   bool res_out = true;
-//------------------------------------------------------------------------------
-// Parameters for validation
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  // Parameters for validation
+  //------------------------------------------------------------------------------
   /* True for using cross-validation and
   False for not */
   bool cross_validation = false;
@@ -154,9 +162,9 @@ struct HyperParam {
   bool sign = false;
   /* Convert predition output using sigmoid */
   bool sigmoid = false;
-//------------------------------------------------------------------------------
-// Parameters for distributed learning
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  // Parameters for distributed learning
+  //------------------------------------------------------------------------------
   /* Batch size for gradient descent */
   int batch_size = 1000000;
   /* Number of worker for compute gradient */
@@ -165,6 +173,6 @@ struct HyperParam {
   int num_server = 0;
 };
 
-}  // namespace XLEARN
+} // namespace xLearn
 
-#endif  // XLEARN_DATA_HYPER_PARAMETER_H_
+#endif // XLEARN_DATA_HYPER_PARAMETER_H_

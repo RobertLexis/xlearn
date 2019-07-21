@@ -3,7 +3,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 # Build static library
 set(STA_DEPS reader loss score data base)
-add_library(solver STATIC checker.cc trainer.cc inference.cc solver.cc)
+add_library(solver STATIC checker.cc trainer.cc inference.cc embedder.cc solver.cc)
 if(NOT WIN32)
 target_link_libraries(solver ${STA_DEPS})
 else(WIN32)
@@ -22,6 +22,9 @@ target_link_libraries(xlearn_train ${LIBS})
 
 add_executable(xlearn_predict predict_main.cc)
 target_link_libraries(xlearn_predict ${LIBS})
+
+add_executable(xlearn_embedding embedding_main.cc)
+target_link_libraries(xlearn_embedding ${LIBS})
 
 # Install library and header files
 install(TARGETS solver DESTINATION lib/solver)

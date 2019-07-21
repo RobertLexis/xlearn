@@ -35,13 +35,15 @@ This file defines the Solver class, which is the entry of the xLearn.
 #include "src/solver/checker.h"
 #include "src/solver/trainer.h"
 #include "src/solver/inference.h"
+#include "src/solver/embedder.h"
 
-namespace xLearn {
+namespace xLearn
+{
 //------------------------------------------------------------------------------
-// Solver is entry class of xLearn, which can perform training 
-// or prediction tasks. There are three important functions in this 
+// Solver is entry class of xLearn, which can perform training
+// or prediction tasks. There are three important functions in this
 // class, including the Initialize(), StartWork(), and Clear() funtions.
-// 
+//
 // We can use Solver class like this:
 //
 //  xLearn::Solver solver;
@@ -50,29 +52,38 @@ namespace xLearn {
 //  solver.StartWork();
 //  solver.Clear();
 //------------------------------------------------------------------------------
-class Solver {
- public:
+class Solver
+{
+public:
   // Constructor and Destructor
-  Solver() 
-    : score_(nullptr),
-      loss_(nullptr),
-      metric_(nullptr) { }
-  ~Solver() { }
+  Solver()
+      : score_(nullptr),
+        loss_(nullptr),
+        metric_(nullptr) {}
+  ~Solver() {}
 
   // Ser train or predict
   void SetTrain() { hyper_param_.is_train = true; }
-  void SetPredict() { hyper_param_.is_train = false; }
-
+  void SetPredict()
+  {
+    hyper_param_.is_train = false;
+    hyper_param_.is_embedding = false;
+  }
+  void SetEmbedding()
+  {
+    hyper_param_.is_train = false;
+    hyper_param_.is_embedding = true;
+  }
   // Initialize the xLearn environment, including checking
   // and parsing the commad line arguments, reading problem
-  // (training data or testing data), initialize model, loss, 
+  // (training data or testing data), initialize model, loss,
   // metric, and score functions, etc.
-  void Initialize(int argc, char* argv[]);
+  void Initialize(int argc, char *argv[]);
 
   // Initialize the xLearn environment through the
-  // given hyper-parameters. This function will be 
+  // given hyper-parameters. This function will be
   // used for python API.
-  void Initialize(HyperParam& hyper_param);
+  void Initialize(HyperParam &hyper_param);
 
   // Start a training task or start an inference task.
   void StartWork();
@@ -83,33 +94,33 @@ class Solver {
   // Clear the xLearn environment.
   void Clear();
 
- protected:
+protected:
   /* Global hyper-parameters */
   xLearn::HyperParam hyper_param_;
   /* Check the user input */
   xLearn::Checker checker_;
   /* Global model parameters */
-  xLearn::Model* model_;
+  xLearn::Model *model_;
   /* One Reader corresponds one data file */
-  std::vector<xLearn::Reader*> reader_;
+  std::vector<xLearn::Reader *> reader_;
   /* Split file in cross-validation */
   xLearn::FileSpliter splitor_;
   /* linear, fm or ffm ? */
-  xLearn::Score* score_;
+  xLearn::Score *score_;
   /* cross-entropy or squared ? */
-  xLearn::Loss* loss_;
+  xLearn::Loss *loss_;
   /* acc, prec, recall, mae, etc */
-  xLearn::Metric* metric_;
+  xLearn::Metric *metric_;
   /* ThreadPool for multi-thread training */
-  ThreadPool* pool_;
+  ThreadPool *pool_;
   /* predict results */
   std::vector<real_t> out_;
 
   // Create object by name
-  xLearn::Reader* create_reader();
-  xLearn::Score* create_score();
-  xLearn::Loss* create_loss();
-  xLearn::Metric* create_metric();
+  xLearn::Reader *create_reader();
+  xLearn::Score *create_score();
+  xLearn::Loss *create_loss();
+  xLearn::Metric *create_metric();
 
   // xLearn command line logo
   void print_logo() const;
@@ -117,15 +128,21 @@ class Solver {
   // Initialize function
   void init_train();
   void init_predict();
+  void init_embedding();
+
+  void init_hyper_param_from_model();
+  void read_problem();
+
   void init_log();
-  void checker(int argc, char* argv[]);
-  void checker(HyperParam& hyper_param);
+  void checker(int argc, char *argv[]);
+  void checker(HyperParam &hyper_param);
 
   // Start function
   void start_train_work();
   void start_prediction_work();
+  void start_embedding_work();
 
- private:
+private:
   DISALLOW_COPY_AND_ASSIGN(Solver);
 };
 

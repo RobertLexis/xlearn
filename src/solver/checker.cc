@@ -29,11 +29,14 @@ This file is the implementation of the Checker class.
 #include "src/base/levenshtein_distance.h"
 #include "src/base/file_util.h"
 
-namespace xLearn {
+namespace xLearn
+{
 
 // Option help menu
-std::string Checker::option_help() const {
-  if (is_train_) {
+std::string Checker::option_help() const
+{
+  if (is_train_)
+  {
     return std::string(R"(
 ----------------------------------------  Training task  -------------------------------------
 USAGE:
@@ -128,9 +131,10 @@ OPTIONS:
                                                                   
   --quiet              :  Don't print any evaluation information during the training and 
                           just train the model quietly. 
-----------------------------------------------------------------------------------------------)"
-    );
-  } else {
+----------------------------------------------------------------------------------------------)");
+  }
+  else
+  {
     return std::string(R"(
 -------------------------------------- Prediction task ---------------------------------------
 USAGE: 
@@ -156,15 +160,16 @@ OPTIONS:
   
   --no-norm                :  Disable instance-wise normalization. By default, xLearn will use 
                               instance-wise normalization for both training and prediction. 
-----------------------------------------------------------------------------------------------)"
-    );
+----------------------------------------------------------------------------------------------)");
   }
 }
 
 // Initialize Checker
-void Checker::Initialize(bool is_train, int argc, char* argv[]) {
+void Checker::Initialize(bool is_train, int argc, char *argv[])
+{
   is_train_ = is_train;
-  if (is_train_) {  // for training
+  if (is_train_)
+  { // for training
     menu_.push_back(std::string("-s"));
     menu_.push_back(std::string("-x"));
     menu_.push_back(std::string("-v"));
@@ -193,7 +198,9 @@ void Checker::Initialize(bool is_train, int argc, char* argv[]) {
     menu_.push_back(std::string("-beta"));
     menu_.push_back(std::string("-lambda_1"));
     menu_.push_back(std::string("-lambda_2"));
-  } else {  // for Prediction
+  }
+  else
+  { // for Prediction
     menu_.push_back(std::string("-o"));
     menu_.push_back(std::string("-l"));
     menu_.push_back(std::string("-nthread"));
@@ -204,59 +211,75 @@ void Checker::Initialize(bool is_train, int argc, char* argv[]) {
     menu_.push_back(std::string("--no-norm"));
   }
   // Get the user's input
-  for (int i = 0; i < argc; ++i) {
+  for (int i = 0; i < argc; ++i)
+  {
     args_.push_back(std::string(argv[i]));
   }
 }
 
 // Check and parse user's input
-bool Checker::check_cmd(HyperParam& hyper_param) {
+bool Checker::check_cmd(HyperParam &hyper_param)
+{
   // Do not have any args
-  if (args_.size() == 1) {
+  if (args_.size() == 1)
+  {
     printf("%s\n", option_help().c_str());
     exit(0);
   }
   // Parse and check argument
-  if (is_train_) {
+  if (is_train_)
+  {
     return check_train_options(hyper_param);
-  } else {
+  }
+  else
+  {
     return check_prediction_options(hyper_param);
   }
 }
 
 // Check hyper-param. Used by c_api
-bool Checker::check_param(HyperParam& hyper_param) {
-  if (hyper_param.is_train) {
+bool Checker::check_param(HyperParam &hyper_param)
+{
+  if (hyper_param.is_train)
+  {
     return check_train_param(hyper_param);
-  } else {
+  }
+  else
+  {
     return check_prediction_param(hyper_param);
   }
 }
 
 // Check options for training tasks
-bool Checker::check_train_options(HyperParam& hyper_param) {
+bool Checker::check_train_options(HyperParam &hyper_param)
+{
   bool bo = true;
   /*********************************************************
    *  Check the file path of the training data             *
    *********************************************************/
-  if (FileExist(args_[1].c_str())) {
+  if (FileExist(args_[1].c_str()))
+  {
     hyper_param.train_set_file = std::string(args_[1]);
-  } else {
+  }
+  else
+  {
     Color::print_error(
-      StringPrintf("Training data file: %s does not exist.", 
-                    args_[1].c_str())
-    );
+        StringPrintf("Training data file: %s does not exist.",
+                     args_[1].c_str()));
     return false;
   }
   /*********************************************************
    *  Check each input argument                            *
    *********************************************************/
-  StringList list(args_.begin()+2, args_.end());
+  StringList list(args_.begin() + 2, args_.end());
   StrSimilar ss;
-  for (int i = 0; i < list.size(); ) {
-    if (list[i].compare("-s") == 0) {  // task type
-      int value = atoi(list[i+1].c_str());
-      if (value < 0 || value > 5) {
+  for (int i = 0; i < list.size();)
+  {
+    if (list[i].compare("-s") == 0)
+    { // task type
+      int value = atoi(list[i + 1].c_str());
+      if (value < 0 || value > 5)
+      {
         Color::print_error(
             "-s can only be [0 - 5] : \n"
             "  for classification task: \n"
@@ -268,311 +291,409 @@ bool Checker::check_train_options(HyperParam& hyper_param) {
             "    4 -- factorization machines (FM) \n"
             "    5 -- field-aware factorization machines (FFM)");
         bo = false;
-      } else {
-        switch (value) {
-          case 0:
-            hyper_param.loss_func = "cross-entropy";
-            hyper_param.score_func = "linear";
-            break;
-          case 1:
-            hyper_param.loss_func = "cross-entropy";
-            hyper_param.score_func = "fm";
-            break;
-          case 2:
-            hyper_param.loss_func = "cross-entropy";
-            hyper_param.score_func = "ffm";
-            break;
-          case 3:
-            hyper_param.loss_func = "squared";
-            hyper_param.score_func = "linear";
-            break;
-          case 4:
-            hyper_param.loss_func = "squared";
-            hyper_param.score_func = "fm";
-            break;
-          case 5:
-            hyper_param.loss_func = "squared";
-            hyper_param.score_func = "ffm";
-            break;
-          default: break;
+      }
+      else
+      {
+        switch (value)
+        {
+        case 0:
+          hyper_param.loss_func = "cross-entropy";
+          hyper_param.score_func = "linear";
+          break;
+        case 1:
+          hyper_param.loss_func = "cross-entropy";
+          hyper_param.score_func = "fm";
+          break;
+        case 2:
+          hyper_param.loss_func = "cross-entropy";
+          hyper_param.score_func = "ffm";
+          break;
+        case 3:
+          hyper_param.loss_func = "squared";
+          hyper_param.score_func = "linear";
+          break;
+        case 4:
+          hyper_param.loss_func = "squared";
+          hyper_param.score_func = "fm";
+          break;
+        case 5:
+          hyper_param.loss_func = "squared";
+          hyper_param.score_func = "ffm";
+          break;
+        default:
+          break;
         }
       }
       i += 2;
-    } else if (list[i].compare("-x") == 0) {  // metrics
-      if (list[i+1].compare("acc") != 0 &&
-          list[i+1].compare("prec") != 0 &&
-          list[i+1].compare("recall") != 0 &&
-          list[i+1].compare("f1") != 0 &&
-          list[i+1].compare("auc") != 0 &&
-          list[i+1].compare("mae") != 0 &&
-          list[i+1].compare("mape") != 0 &&
-          list[i+1].compare("rmsd") != 0 &&
-          list[i+1].compare("rmse") != 0 &&
-          list[i+1].compare("none") != 0) {
+    }
+    else if (list[i].compare("-x") == 0)
+    { // metrics
+      if (list[i + 1].compare("acc") != 0 &&
+          list[i + 1].compare("prec") != 0 &&
+          list[i + 1].compare("recall") != 0 &&
+          list[i + 1].compare("f1") != 0 &&
+          list[i + 1].compare("auc") != 0 &&
+          list[i + 1].compare("mae") != 0 &&
+          list[i + 1].compare("mape") != 0 &&
+          list[i + 1].compare("rmsd") != 0 &&
+          list[i + 1].compare("rmse") != 0 &&
+          list[i + 1].compare("none") != 0)
+      {
         Color::print_error(
-          StringPrintf("Unknow metric: %s \n"
-               " -x can only be: \n"
-               "   acc \n"
-               "   prec \n" 
-               "   recall \n"
-               "   f1 \n"
-               "   auc\n"
-               "   mae \n"
-               "   mape \n"
-               "   rmsd \n"
-               "   rmse \n"
-               "   none",
-               list[i+1].c_str())
-        );
-        bo = false;
-      } else {
-        hyper_param.metric = list[i+1];
-      }
-      i += 2;
-    } else if (list[i].compare("-p") == 0) {  // optimization method
-      if (list[i+1].compare("adagrad") != 0 &&
-          list[i+1].compare("ftrl") != 0 &&
-          list[i+1].compare("sgd") != 0) {
-        Color::print_error(
-          StringPrintf("Unknow optimization method: %s \n"
-               " -o can only be: adagrad and ftrl. \n",
-               list[i+1].c_str())
-        );
-        bo = false;
-      } else {
-        hyper_param.opt_type = list[i+1];
-      }
-      i += 2;
-    } else if (list[i].compare("-v") == 0) {  // validation file
-      if (FileExist(list[i+1].c_str())) {
-        hyper_param.validate_set_file = list[i+1];
-      } else {
-        Color::print_error(
-          StringPrintf("Validation set file: %s dose not exists.",
-                       list[i+1].c_str())
-        );
+            StringPrintf("Unknow metric: %s \n"
+                         " -x can only be: \n"
+                         "   acc \n"
+                         "   prec \n"
+                         "   recall \n"
+                         "   f1 \n"
+                         "   auc\n"
+                         "   mae \n"
+                         "   mape \n"
+                         "   rmsd \n"
+                         "   rmse \n"
+                         "   none",
+                         list[i + 1].c_str()));
         bo = false;
       }
+      else
+      {
+        hyper_param.metric = list[i + 1];
+      }
       i += 2;
-    } else if (list[i].compare("-m") == 0) {  // model file
-      hyper_param.model_file = list[i+1];
-      i += 2;
-    } else if (list[i].compare("-t") == 0) { // txt model file
-      hyper_param.txt_model_file = list[i+1];
-      i += 2;
-    } else if (list[i].compare("-l") == 0) {  // log file
-      hyper_param.log_file = list[i+1];
-      i += 2;
-    } else if (list[i].compare("-k") == 0) {  // latent factor
-      int value = atoi(list[i+1].c_str());
-      if (value <= 0) {
+    }
+    else if (list[i].compare("-p") == 0)
+    { // optimization method
+      if (list[i + 1].compare("adagrad") != 0 &&
+          list[i + 1].compare("ftrl") != 0 &&
+          list[i + 1].compare("sgd") != 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -k '%i'. -k must be geater than zero.",
-               value)
-        );
+            StringPrintf("Unknow optimization method: %s \n"
+                         " -o can only be: adagrad and ftrl. \n",
+                         list[i + 1].c_str()));
         bo = false;
-      } else {
+      }
+      else
+      {
+        hyper_param.opt_type = list[i + 1];
+      }
+      i += 2;
+    }
+    else if (list[i].compare("-v") == 0)
+    { // validation file
+      if (FileExist(list[i + 1].c_str()))
+      {
+        hyper_param.validate_set_file = list[i + 1];
+      }
+      else
+      {
+        Color::print_error(
+            StringPrintf("Validation set file: %s dose not exists.",
+                         list[i + 1].c_str()));
+        bo = false;
+      }
+      i += 2;
+    }
+    else if (list[i].compare("-m") == 0)
+    { // model file
+      hyper_param.model_file = list[i + 1];
+      i += 2;
+    }
+    else if (list[i].compare("-t") == 0)
+    { // txt model file
+      hyper_param.txt_model_file = list[i + 1];
+      i += 2;
+    }
+    else if (list[i].compare("-l") == 0)
+    { // log file
+      hyper_param.log_file = list[i + 1];
+      i += 2;
+    }
+    else if (list[i].compare("-k") == 0)
+    { // latent factor
+      int value = atoi(list[i + 1].c_str());
+      if (value <= 0)
+      {
+        Color::print_error(
+            StringPrintf("Illegal -k '%i'. -k must be geater than zero.",
+                         value));
+        bo = false;
+      }
+      else
+      {
         hyper_param.num_K = value;
       }
       i += 2;
-    } else if (list[i].compare("-r") == 0) {  // learning rate
-      real_t value = atof(list[i+1].c_str());
-      if (value <= 0) {
+    }
+    else if (list[i].compare("-r") == 0)
+    { // learning rate
+      real_t value = atof(list[i + 1].c_str());
+      if (value <= 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -r : '%f'. -r must be greater than zero.",
-               value)
-        );
+            StringPrintf("Illegal -r : '%f'. -r must be greater than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.learning_rate = value;
       }
       i += 2;
-    } else if (list[i].compare("-b") == 0) {  // regular lambda
-      real_t value = atof(list[i+1].c_str());
-      if (value < 0) {
+    }
+    else if (list[i].compare("-b") == 0)
+    { // regular lambda
+      real_t value = atof(list[i + 1].c_str());
+      if (value < 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -b : '%f' "
-               "-b must be greater than or equal to zero.",
-               value)
-        );
+            StringPrintf("Illegal -b : '%f' "
+                         "-b must be greater than or equal to zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.regu_lambda = value;
       }
       i += 2;
-    } else if (list[i].compare("-u") == 0) {  // model scale
-      real_t value = atof(list[i+1].c_str());
-      if (value <= 0) {
+    }
+    else if (list[i].compare("-u") == 0)
+    { // model scale
+      real_t value = atof(list[i + 1].c_str());
+      if (value <= 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -u : '%f'. -u must be greater than zero.",
-               value)
-        );
+            StringPrintf("Illegal -u : '%f'. -u must be greater than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.model_scale = value;
       }
       i += 2;
-    } else if (list[i].compare("-e") == 0) {  // number of epoch
-      int value = atoi(list[i+1].c_str());
-      if (value < 0) {
+    }
+    else if (list[i].compare("-e") == 0)
+    { // number of epoch
+      int value = atoi(list[i + 1].c_str());
+      if (value < 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -e : '%i'. -e must be greater than zero.",
-               value)
-        );
+            StringPrintf("Illegal -e : '%i'. -e must be greater than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.num_epoch = value;
       }
       i += 2;
-    } else if (list[i].compare("-f") == 0) {  // number of folds
-      int value = atoi(list[i+1].c_str());
-      if (value < 0) {
+    }
+    else if (list[i].compare("-f") == 0)
+    { // number of folds
+      int value = atoi(list[i + 1].c_str());
+      if (value < 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -f : '%i'. -f must be greater than zero.",
-               value)
-        );
+            StringPrintf("Illegal -f : '%i'. -f must be greater than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.num_folds = value;
       }
       i += 2;
-    } else if (list[i].compare("-pre") == 0) {  // pre-trained model
-      hyper_param.pre_model_file = list[i+1];
+    }
+    else if (list[i].compare("-pre") == 0)
+    { // pre-trained model
+      hyper_param.pre_model_file = list[i + 1];
       i += 2;
-    } else if (list[i].compare("-nthread") == 0) {  // number of thread
-      int value = atoi(list[i+1].c_str());
-      if (value <= 0) {
+    }
+    else if (list[i].compare("-nthread") == 0)
+    { // number of thread
+      int value = atoi(list[i + 1].c_str());
+      if (value <= 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -nthread : '%i'. -nthread must be greater than zero.",
-               value)
-        );
+            StringPrintf("Illegal -nthread : '%i'. -nthread must be greater than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.thread_number = value;
       }
       i += 2;
-    } else if (list[i].compare("-block") == 0) {  // block size for on-disk training
-      int value = atoi(list[i+1].c_str());
-      if (value <= 0) {
+    }
+    else if (list[i].compare("-block") == 0)
+    { // block size for on-disk training
+      int value = atoi(list[i + 1].c_str());
+      if (value <= 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -block : '%i'. -block must be greater than zero.",
-               value)
-        );
+            StringPrintf("Illegal -block : '%i'. -block must be greater than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.block_size = value;
       }
       i += 2;
-    } else if (list[i].compare("-sw") == 0) {  // window size for early stopping
-      int value = atoi(list[i+1].c_str());
-      if (value < 1) {
+    }
+    else if (list[i].compare("-sw") == 0)
+    { // window size for early stopping
+      int value = atoi(list[i + 1].c_str());
+      if (value < 1)
+      {
         Color::print_error(
-          StringPrintf("Illegal -sw : '%i'. -sw must be greater than or equal to 1.",
-               value)
-        );
+            StringPrintf("Illegal -sw : '%i'. -sw must be greater than or equal to 1.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.stop_window = value;
       }
       i += 2;
-    } else if (list[i].compare("-seed") == 0) {  // random seed
-      int value = atoi(list[i+1].c_str());
-      if (value < 1) {
+    }
+    else if (list[i].compare("-seed") == 0)
+    { // random seed
+      int value = atoi(list[i + 1].c_str());
+      if (value < 1)
+      {
         Color::print_error(
-          StringPrintf("Illegal -seed : '%i'. -seed must be greater than or equal to 1.",
-               value)
-        );
+            StringPrintf("Illegal -seed : '%i'. -seed must be greater than or equal to 1.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.seed = value;
       }
       i += 2;
-    } else if (list[i].compare("--disk") == 0) {  // on-disk training
+    }
+    else if (list[i].compare("--disk") == 0)
+    { // on-disk training
       hyper_param.on_disk = true;
       i += 1;
-    } else if (list[i].compare("--cv") == 0) {  // cross-validation
+    }
+    else if (list[i].compare("--cv") == 0)
+    { // cross-validation
       hyper_param.cross_validation = true;
       i += 1;
-    } else if (list[i].compare("--dis-lock-free") == 0) {  // lock-free training
+    }
+    else if (list[i].compare("--dis-lock-free") == 0)
+    { // lock-free training
       hyper_param.lock_free = false;
       i += 1;
-    } else if (list[i].compare("--dis-es") == 0) {  // disable early-stop
+    }
+    else if (list[i].compare("--dis-es") == 0)
+    { // disable early-stop
       hyper_param.early_stop = false;
       i += 1;
-    } else if (list[i].compare("--no-norm") == 0) {  // normalization
+    }
+    else if (list[i].compare("--no-norm") == 0)
+    { // normalization
       hyper_param.norm = false;
       i += 1;
-    } else if (list[i].compare("--no-bin") == 0) {  // do not generate bin file
+    }
+    else if (list[i].compare("--no-bin") == 0)
+    { // do not generate bin file
       hyper_param.bin_out = false;
       i += 1;
-    } else if (list[i].compare("--quiet") == 0) {  // quiet
+    }
+    else if (list[i].compare("--quiet") == 0)
+    { // quiet
       hyper_param.quiet = true;
       i += 1;
-    } else if (list[i].compare("-alpha") == 0) {  // alpha
-      real_t value = atof(list[i+1].c_str());
-      if (value <= 0) {
+    }
+    else if (list[i].compare("-alpha") == 0)
+    { // alpha
+      real_t value = atof(list[i + 1].c_str());
+      if (value <= 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -alpha : '%f'. "
-                       "-alpha must be greater than zero.",
-               value)
-        );
+            StringPrintf("Illegal -alpha : '%f'. "
+                         "-alpha must be greater than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.alpha = value;
       }
       i += 2;
-    } else if (list[i].compare("-beta") == 0) {  // beta
-      real_t value = atof(list[i+1].c_str());
-      if (value < 0) {
+    }
+    else if (list[i].compare("-beta") == 0)
+    { // beta
+      real_t value = atof(list[i + 1].c_str());
+      if (value < 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -beta : '%f'. "
-                       "-beta cannot be less than zero.",
-               value)
-        );
+            StringPrintf("Illegal -beta : '%f'. "
+                         "-beta cannot be less than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.beta = value;
       }
       i += 2;
-    } else if (list[i].compare("-lambda_1") == 0) {  // lambda_1
-      real_t value = atof(list[i+1].c_str());
-      if (value < 0) {
+    }
+    else if (list[i].compare("-lambda_1") == 0)
+    { // lambda_1
+      real_t value = atof(list[i + 1].c_str());
+      if (value < 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -lambda_1 : '%f'. "
-                       "-lambda_1 cannot be less than zero.",
-               value)
-        );
+            StringPrintf("Illegal -lambda_1 : '%f'. "
+                         "-lambda_1 cannot be less than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.lambda_1 = value;
       }
       i += 2;
-    } else if (list[i].compare("-lambda_2") == 0) { // lambda_2
-      real_t value = atof(list[i+1].c_str());
-      if (value < 0) {
+    }
+    else if (list[i].compare("-lambda_2") == 0)
+    { // lambda_2
+      real_t value = atof(list[i + 1].c_str());
+      if (value < 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -lambda_2 : '%f'. "
-                       "-lambda_2 cannot be less than zero.",
-               value)
-        );
+            StringPrintf("Illegal -lambda_2 : '%f'. "
+                         "-lambda_2 cannot be less than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.lambda_2 = value;
       }
       i += 2;
-    } else {  // no match
+    }
+    else
+    { // no match
       std::string similar_str;
       ss.FindSimilar(list[i], menu_, similar_str);
       Color::print_error(
-        StringPrintf("Unknow argument '%s'. Do you mean '%s' ?",
-             list[i].c_str(),
-             similar_str.c_str())
-      );
+          StringPrintf("Unknow argument '%s'. Do you mean '%s' ?",
+                       list[i].c_str(),
+                       similar_str.c_str()));
       bo = false;
       break;
     }
   }
-  if (!bo) { return false; }
+  if (!bo)
+  {
+    return false;
+  }
   /*********************************************************
    *  Check warning and fix conflict                       *
    *********************************************************/
@@ -580,10 +701,12 @@ bool Checker::check_train_options(HyperParam& hyper_param) {
   /*********************************************************
    *  Set default value                                    *
    *********************************************************/
-  if (hyper_param.model_file.empty() && !hyper_param.cross_validation) {
+  if (hyper_param.model_file.empty() && !hyper_param.cross_validation)
+  {
     hyper_param.model_file = hyper_param.train_set_file + ".model";
   }
-  if (hyper_param.metric.compare("rmse") == 0) {
+  if (hyper_param.metric.compare("rmse") == 0)
+  {
     hyper_param.metric = "rmsd";
   }
 
@@ -591,49 +714,53 @@ bool Checker::check_train_options(HyperParam& hyper_param) {
 }
 
 // Check the given hyper-param. Used by c_api
-bool Checker::check_train_param(HyperParam& hyper_param) {
+bool Checker::check_train_param(HyperParam &hyper_param)
+{
   bool bo = true;
   /*********************************************************
    *  Check file path                                      *
    *********************************************************/
-  if (hyper_param.from_file) {
-    if (!FileExist(hyper_param.train_set_file.c_str())) {
+  if (hyper_param.from_file)
+  {
+    if (!FileExist(hyper_param.train_set_file.c_str()))
+    {
       Color::print_error(
-        StringPrintf("Training data file: %s does not exist.", 
-                      hyper_param.train_set_file.c_str())
-      );
+          StringPrintf("Training data file: %s does not exist.",
+                       hyper_param.train_set_file.c_str()));
       bo = false;
     }
     if (!hyper_param.validate_set_file.empty() &&
-        !FileExist(hyper_param.validate_set_file.c_str())) {
+        !FileExist(hyper_param.validate_set_file.c_str()))
+    {
       Color::print_error(
-        StringPrintf("Validation data file: %s does not exist.", 
-                      hyper_param.validate_set_file.c_str())
-      );
+          StringPrintf("Validation data file: %s does not exist.",
+                       hyper_param.validate_set_file.c_str()));
       bo = false;
-    }  
-  } else {
-    if (hyper_param.train_dataset == nullptr) {
+    }
+  }
+  else
+  {
+    if (hyper_param.train_dataset == nullptr)
+    {
       Color::print_error(
-        StringPrintf("Training dataset is None, please check!")
-      );
+          StringPrintf("Training dataset is None, please check!"));
       bo = false;
     }
   }
   /*********************************************************
    *  Check invalid value                                  *
    *********************************************************/
-  if (hyper_param.thread_number < 0) {
+  if (hyper_param.thread_number < 0)
+  {
     Color::print_error(
-      StringPrintf("The thread number must be greater than zero: %d.",
-        hyper_param.thread_number)
-    );
+        StringPrintf("The thread number must be greater than zero: %d.",
+                     hyper_param.thread_number));
     bo = false;
   }
-  if (hyper_param.loss_func.compare("unknow") == 0) {
+  if (hyper_param.loss_func.compare("unknow") == 0)
+  {
     Color::print_error(
-      StringPrintf("The task can only be 'binary' or 'reg'.")
-    );
+        StringPrintf("The task can only be 'binary' or 'reg'."));
     bo = false;
   }
   if (hyper_param.metric.compare("acc") != 0 &&
@@ -645,47 +772,48 @@ bool Checker::check_train_param(HyperParam& hyper_param) {
       hyper_param.metric.compare("mape") != 0 &&
       hyper_param.metric.compare("rmsd") != 0 &&
       hyper_param.metric.compare("rmse") != 0 &&
-      hyper_param.metric.compare("none") != 0) {
+      hyper_param.metric.compare("none") != 0)
+  {
     Color::print_error(
-      StringPrintf("Unknow evaluation metric: %s.",
-        hyper_param.metric.c_str())
-    );
+        StringPrintf("Unknow evaluation metric: %s.",
+                     hyper_param.metric.c_str()));
     bo = false;
   }
   if (hyper_param.opt_type.compare("sgd") != 0 &&
       hyper_param.opt_type.compare("ftrl") != 0 &&
-      hyper_param.opt_type.compare("adagrad") != 0) {
+      hyper_param.opt_type.compare("adagrad") != 0)
+  {
     Color::print_error(
-      StringPrintf("Unknow optimization method: %s.",
-        hyper_param.opt_type.c_str())
-    );
+        StringPrintf("Unknow optimization method: %s.",
+                     hyper_param.opt_type.c_str()));
     bo = false;
   }
-  if (hyper_param.num_K > 999999) {
+  if (hyper_param.num_K > 999999)
+  {
     Color::print_error(
-      StringPrintf("Invalid size of K: %d. "
-                   "Size of K must be greater than zero.", 
-        hyper_param.num_K)
-    );
+        StringPrintf("Invalid size of K: %d. "
+                     "Size of K must be greater than zero.",
+                     hyper_param.num_K));
     bo = false;
   }
-  if (hyper_param.num_folds <= 0) {
+  if (hyper_param.num_folds <= 0)
+  {
     Color::print_error(
-      StringPrintf("Invalid size of folds: %d. "
-                   "Size of folds must be greater than zero.", 
-        hyper_param.num_folds)
-    );
+        StringPrintf("Invalid size of folds: %d. "
+                     "Size of folds must be greater than zero.",
+                     hyper_param.num_folds));
     bo = false;
   }
-  if (hyper_param.num_epoch <= 0) {
+  if (hyper_param.num_epoch <= 0)
+  {
     Color::print_error(
-      StringPrintf("Invalid number of epoch: %d. "
-                   "Number of epoch must be greater than zero.", 
-        hyper_param.num_epoch)
-    );
+        StringPrintf("Invalid number of epoch: %d. "
+                     "Number of epoch must be greater than zero.",
+                     hyper_param.num_epoch));
     bo = false;
   }
-  if (!bo) return false;
+  if (!bo)
+    return false;
   /*********************************************************
    *  Check warning and fix conflict                       *
    *********************************************************/
@@ -693,10 +821,12 @@ bool Checker::check_train_param(HyperParam& hyper_param) {
   /*********************************************************
    *  Set default value                                    *
    *********************************************************/
-  if (hyper_param.model_file.empty() && !hyper_param.cross_validation) {
+  if (hyper_param.model_file.empty() && !hyper_param.cross_validation)
+  {
     hyper_param.model_file = hyper_param.train_set_file + ".model";
   }
-  if (hyper_param.metric.compare("rmse") == 0) {
+  if (hyper_param.metric.compare("rmse") == 0)
+  {
     hyper_param.metric = "rmsd";
   }
 
@@ -704,181 +834,220 @@ bool Checker::check_train_param(HyperParam& hyper_param) {
 }
 
 // Check warning and fix conflict
-void Checker::check_conflict_train(HyperParam& hyper_param) {
-  if (!hyper_param.from_file && hyper_param.cross_validation) {
+void Checker::check_conflict_train(HyperParam &hyper_param)
+{
+  if (!hyper_param.from_file && hyper_param.cross_validation)
+  {
     Color::print_warning("Transform DMatrix not from file doesn't support cross-validation. "
                          "xLearn has already disable the -cv option.");
     hyper_param.cross_validation = false;
   }
-  if (hyper_param.on_disk && hyper_param.cross_validation) {
+  if (hyper_param.on_disk && hyper_param.cross_validation)
+  {
     Color::print_warning("On-disk training doesn't support cross-validation. "
                          "xLearn has already disable the -cv option.");
     hyper_param.cross_validation = false;
   }
-  if (hyper_param.cross_validation && hyper_param.early_stop) {
+  if (hyper_param.cross_validation && hyper_param.early_stop)
+  {
     Color::print_warning("Cross-validation doesn't support early-stopping. "
                          "xLearn has already close early-stopping.");
     hyper_param.early_stop = false;
   }
-  if (hyper_param.cross_validation && !hyper_param.test_set_file.empty()) {
+  if (hyper_param.cross_validation && !hyper_param.test_set_file.empty())
+  {
     Color::print_warning(
-      StringPrintf("The --cv (cross-validation) has been set, and "
-                   "xLearn will ignore the validation file: %s",
-                   hyper_param.test_set_file.c_str())
-    );
+        StringPrintf("The --cv (cross-validation) has been set, and "
+                     "xLearn will ignore the validation file: %s",
+                     hyper_param.test_set_file.c_str()));
     hyper_param.validate_set_file.clear();
   }
-  if (hyper_param.cross_validation && hyper_param.quiet) {
+  if (hyper_param.cross_validation && hyper_param.quiet)
+  {
     Color::print_warning("The --cv (cross-validation) has been set, and "
                          "xLearn will ignore the --quiet option.");
     hyper_param.quiet = false;
   }
-  if (hyper_param.cross_validation && !hyper_param.model_file.empty()) {
+  if (hyper_param.cross_validation && !hyper_param.model_file.empty())
+  {
     Color::print_warning("The --cv (cross-validation) has been set, and "
                          "xLearn will not dump model checkpoint to disk.");
     hyper_param.model_file.clear();
   }
-  if ((hyper_param.validate_set_file.empty() && hyper_param.valid_dataset == nullptr) 
-      && hyper_param.early_stop) {
+  if ((hyper_param.validate_set_file.empty() && hyper_param.valid_dataset == nullptr) && hyper_param.early_stop)
+  {
     Color::print_warning("Validation file(dataset) not found, xLearn has already "
                          "disable early-stopping.");
     hyper_param.early_stop = false;
   }
   if (hyper_param.metric.compare("none") != 0 &&
-      hyper_param.validate_set_file.empty() && 
+      hyper_param.validate_set_file.empty() &&
       hyper_param.valid_dataset == nullptr &&
-      !hyper_param.cross_validation) {
+      !hyper_param.cross_validation)
+  {
     Color::print_warning(
-      StringPrintf("Validation file not found, xLearn has already "
-                   "disable (-x %s) option.", 
-                   hyper_param.metric.c_str())
-    );
+        StringPrintf("Validation file not found, xLearn has already "
+                     "disable (-x %s) option.",
+                     hyper_param.metric.c_str()));
     hyper_param.metric = "none";
   }
-  if (hyper_param.loss_func.compare("squared") == 0) {
+  if (hyper_param.loss_func.compare("squared") == 0)
+  {
     if (hyper_param.metric.compare("acc") == 0 ||
         hyper_param.metric.compare("prec") == 0 ||
         hyper_param.metric.compare("recall") == 0 ||
-        hyper_param.metric.compare("f1") == 0) {
+        hyper_param.metric.compare("f1") == 0)
+    {
       Color::print_warning(
-        StringPrintf("The -x: %s metric can only be used "
-                     "in classification tasks. xLearn will "
-                     "ignore this option.",
-                     hyper_param.metric.c_str())
-      );
+          StringPrintf("The -x: %s metric can only be used "
+                       "in classification tasks. xLearn will "
+                       "ignore this option.",
+                       hyper_param.metric.c_str()));
       hyper_param.metric = "none";
     }
-  } else if (hyper_param.loss_func.compare("cross-entropy") == 0) {
+  }
+  else if (hyper_param.loss_func.compare("cross-entropy") == 0)
+  {
     if (hyper_param.metric.compare("mae") == 0 ||
         hyper_param.metric.compare("mape") == 0 ||
         hyper_param.metric.compare("rmsd") == 0 ||
-        hyper_param.metric.compare("rmse") == 0) {
+        hyper_param.metric.compare("rmse") == 0)
+    {
       Color::print_warning(
-        StringPrintf("The -x: %s metric can only be used "
-                     "in regression tasks. xLearn will ignore "
-                     "this option.",
-                     hyper_param.metric.c_str())
-      );
+          StringPrintf("The -x: %s metric can only be used "
+                       "in regression tasks. xLearn will ignore "
+                       "this option.",
+                       hyper_param.metric.c_str()));
       hyper_param.metric = "none";
     }
   }
 }
 
 // Check options for prediction tasks
-bool Checker::check_prediction_options(HyperParam& hyper_param) {
+bool Checker::check_prediction_options(HyperParam &hyper_param)
+{
   bool bo = true;
   /*********************************************************
    *  Check size                                           *
    *********************************************************/
-  if (args_.size() < 3) {
+  if (args_.size() < 3)
+  {
     Color::print_error("The test file and model file must be set.");
     return false;
   }
   /*********************************************************
    *  Check the path of test set file                      *
    *********************************************************/
-  if (FileExist(args_[1].c_str())) {
+  if (FileExist(args_[1].c_str()))
+  {
     hyper_param.test_set_file = std::string(args_[1]);
-  } else {
+  }
+  else
+  {
     Color::print_error(
-      StringPrintf("Test set file: %s does not exist.",
-           args_[1].c_str())
-    );
+        StringPrintf("Test set file: %s does not exist.",
+                     args_[1].c_str()));
     return false;
   }
   /*********************************************************
    *  Check the path of model file                         *
    *********************************************************/
-  if (FileExist(args_[2].c_str())) {
+  if (FileExist(args_[2].c_str()))
+  {
     hyper_param.model_file = std::string(args_[2]);
-  } else {
+  }
+  else
+  {
     Color::print_error(
-      StringPrintf("Model file: %s does not exist.",
-           args_[2].c_str())
-    );
+        StringPrintf("Model file: %s does not exist.",
+                     args_[2].c_str()));
     return false;
   }
   /*********************************************************
    *  Check each input argument                            *
    *********************************************************/
-  StringList list(args_.begin()+3, args_.end());
+  StringList list(args_.begin() + 3, args_.end());
   StrSimilar ss;
-  for (int i = 0; i < list.size(); ) {
-    if (list[i].compare("-o") == 0) {  // path of the output
-      hyper_param.output_file = list[i+1];
+  for (int i = 0; i < list.size();)
+  {
+    if (list[i].compare("-o") == 0)
+    { // path of the output
+      hyper_param.output_file = list[i + 1];
       i += 2;
-    } else if (list[i].compare("-l") == 0) {  // path of the log file
-      hyper_param.log_file = list[i+1];
+    }
+    else if (list[i].compare("-l") == 0)
+    { // path of the log file
+      hyper_param.log_file = list[i + 1];
       i += 2;
-    } else if (list[i].compare("-nthread") == 0) {  // number of thread
-      int value = atoi(list[i+1].c_str());
-      if (value <= 0) {
+    }
+    else if (list[i].compare("-nthread") == 0)
+    { // number of thread
+      int value = atoi(list[i + 1].c_str());
+      if (value <= 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -nthread : '%i'. -nthread must be greater than zero.",
-               value)
-        );
+            StringPrintf("Illegal -nthread : '%i'. -nthread must be greater than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.thread_number = value;
       }
       i += 2;
-    } else if (list[i].compare("-block") == 0) {  // block size for on-disk training
-      int value = atoi(list[i+1].c_str());
-      if (value <= 0) {
+    }
+    else if (list[i].compare("-block") == 0)
+    { // block size for on-disk training
+      int value = atoi(list[i + 1].c_str());
+      if (value <= 0)
+      {
         Color::print_error(
-          StringPrintf("Illegal -block : '%i'. -block must be greater than zero.",
-               value)
-        );
+            StringPrintf("Illegal -block : '%i'. -block must be greater than zero.",
+                         value));
         bo = false;
-      } else {
+      }
+      else
+      {
         hyper_param.block_size = value;
       }
       i += 2;
-    } else if (list[i].compare("--sign") == 0) {  // convert output to 0 and 1
+    }
+    else if (list[i].compare("--sign") == 0)
+    { // convert output to 0 and 1
       hyper_param.sign = true;
       i += 1;
-    } else if (list[i].compare("--sigmoid") == 0) {  // using sigmoid
+    }
+    else if (list[i].compare("--sigmoid") == 0)
+    { // using sigmoid
       hyper_param.sigmoid = true;
       i += 1;
-    } else if (list[i].compare("--disk") == 0) {  // on-disk prediction
+    }
+    else if (list[i].compare("--disk") == 0)
+    { // on-disk prediction
       hyper_param.on_disk = true;
       i += 1;
-    } else if (list[i].compare("--no-norm") == 0) {  // normalization
+    }
+    else if (list[i].compare("--no-norm") == 0)
+    { // normalization
       hyper_param.norm = false;
       i += 1;
-    } else {  // no match
+    }
+    else
+    { // no match
       std::string similar_str;
       ss.FindSimilar(list[i], menu_, similar_str);
       Color::print_error(
-        StringPrintf("Unknow argument '%s'. Do you mean '%s' ?",
-             list[i].c_str(),
-             similar_str.c_str())
-      );
+          StringPrintf("Unknow argument '%s'. Do you mean '%s' ?",
+                       list[i].c_str(),
+                       similar_str.c_str()));
       bo = false;
       break;
     }
   }
-  if (!bo) { return false; }
+  if (!bo)
+  {
+    return false;
+  }
   /*********************************************************
    *  Check warning and fix conflict                       *
    *********************************************************/
@@ -886,7 +1055,8 @@ bool Checker::check_prediction_options(HyperParam& hyper_param) {
   /*********************************************************
    *  Set default value                                    *
    *********************************************************/
-  if (hyper_param.output_file.empty()) {
+  if (hyper_param.output_file.empty())
+  {
     hyper_param.output_file = hyper_param.test_set_file + ".out";
   }
 
@@ -894,67 +1064,76 @@ bool Checker::check_prediction_options(HyperParam& hyper_param) {
 }
 
 // Check the given param. Used by c_api
-bool Checker::check_prediction_param(HyperParam& hyper_param) {
- bool bo = true;
- /*********************************************************
+bool Checker::check_prediction_param(HyperParam &hyper_param)
+{
+  bool bo = true;
+  /*********************************************************
   *  Check the path of test set file                      *
   *********************************************************/
- if (hyper_param.from_file) {
-  if (!FileExist(hyper_param.test_set_file.c_str())) {
+  if (hyper_param.from_file)
+  {
+    if (!FileExist(hyper_param.test_set_file.c_str()))
+    {
       Color::print_error(
-        StringPrintf("Test set file: %s does not exist.",
-            hyper_param.test_set_file.c_str())
-      );
-      bo =  false;
+          StringPrintf("Test set file: %s does not exist.",
+                       hyper_param.test_set_file.c_str()));
+      bo = false;
+    }
   }
- } else {
-   if (hyper_param.test_dataset == nullptr) {
+  else
+  {
+    if (hyper_param.test_dataset == nullptr)
+    {
       Color::print_error(
-        StringPrintf("Test dataset is None, please check!")
-      );
-      bo =  false;
-   }
- }
- /*********************************************************
+          StringPrintf("Test dataset is None, please check!"));
+      bo = false;
+    }
+  }
+  /*********************************************************
   *  Check the path of model file                         *
   *********************************************************/
- if (!FileExist(hyper_param.model_file.c_str())) {
+  if (!FileExist(hyper_param.model_file.c_str()))
+  {
     Color::print_error(
-      StringPrintf("Model file: %s does not exist.",
-           hyper_param.model_file.c_str())
-    );
+        StringPrintf("Model file: %s does not exist.",
+                     hyper_param.model_file.c_str()));
     bo = false;
- }
- /*********************************************************
+  }
+  /*********************************************************
   *  Check invalid value                                  *
   *********************************************************/
- if (hyper_param.thread_number < 0) {
+  if (hyper_param.thread_number < 0)
+  {
     Color::print_error(
-      StringPrintf("The thread number must be greater than zero: %d.",
-        hyper_param.thread_number)
-    );
+        StringPrintf("The thread number must be greater than zero: %d.",
+                     hyper_param.thread_number));
     bo = false;
   }
- if (!bo) return false;
- /*********************************************************
+  if (!bo)
+    return false;
+  /*********************************************************
   *  Check warning and fix conflict                       *
   *********************************************************/
- check_conflict_predict(hyper_param);
- /*********************************************************
+  check_conflict_predict(hyper_param);
+  /*********************************************************
   *  Set default value                                    *
   *********************************************************/
- if (hyper_param.res_out) {
-  if (hyper_param.output_file.empty()) {
-    hyper_param.output_file = hyper_param.test_set_file + ".out";
+  if (hyper_param.res_out)
+  {
+    if (hyper_param.output_file.empty())
+    {
+      hyper_param.output_file = hyper_param.test_set_file + ".out";
+    }
   }
- }
 
- return true;
+  return true;
 }
 
 // Check warning and fix conflict
-void Checker::check_conflict_predict(HyperParam& hyper_param) {
-  if (hyper_param.sign && hyper_param.sigmoid) {
+void Checker::check_conflict_predict(HyperParam &hyper_param)
+{
+  if (hyper_param.sign && hyper_param.sigmoid)
+  {
     Color::print_warning("Both of --sign and --sigmoid have been set. "
                          "xLearn has already disable --sign and --sigmoid.");
     hyper_param.sign = false;
