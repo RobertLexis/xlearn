@@ -24,6 +24,9 @@ This file is the implementation of logging facilities.
 #include <time.h>
 #include <string.h>
 
+namespace xLearn
+{
+
 //------------------------------------------------------------------------------
 // Logger
 //------------------------------------------------------------------------------
@@ -32,52 +35,66 @@ std::ofstream Logger::info_log_file_;
 std::ofstream Logger::warn_log_file_;
 std::ofstream Logger::erro_log_file_;
 
-void InitializeLogger(const std::string& info_log_filename,
-                      const std::string& warn_log_filename,
-                      const std::string& erro_log_filename) {
+void InitializeLogger(const std::string &info_log_filename,
+                      const std::string &warn_log_filename,
+                      const std::string &erro_log_filename)
+{
   Logger::info_log_file_.open(info_log_filename.c_str());
   Logger::warn_log_file_.open(warn_log_filename.c_str());
   Logger::erro_log_file_.open(erro_log_filename.c_str());
   // check if the file has been open
   bool bo = false;
-  if (Logger::info_log_file_.is_open() == 0) {
+  if (Logger::info_log_file_.is_open() == 0)
+  {
     std::cout << "Cannot create file: " << info_log_filename << ". "
               << "Please check that wether you need to "
               << "create a new directory. \n";
     bo = true;
   }
-  if (Logger::warn_log_file_.is_open() == 0) {
+  if (Logger::warn_log_file_.is_open() == 0)
+  {
     std::cout << "Cannot create file: " << warn_log_filename << ". "
               << "Please check that wether you need to "
               << "create a new directory. \n";
     bo = true;
   }
-  if (Logger::erro_log_file_.is_open() == 0) {
+  if (Logger::erro_log_file_.is_open() == 0)
+  {
     std::cout << "Cannot create file:  " << erro_log_filename << ". "
               << "Please check that wether you need to "
               << "create a new directory. \n";
     bo = true;
   }
-  if (bo) { exit(0); }
+  if (bo)
+  {
+    exit(0);
+  }
 }
 
 /*static*/
-std::ostream& Logger::GetStream(LogSeverity severity) {
-  if (severity == INFO) {
+std::ostream &Logger::GetStream(LogSeverity severity)
+{
+  if (severity == INFO)
+  {
     return info_log_file_.is_open() ? info_log_file_ : std::cout;
-  } else if (severity == WARNING) {
+  }
+  else if (severity == WARNING)
+  {
     return warn_log_file_.is_open() ? warn_log_file_ : std::cerr;
-  } else if (severity == ERR || severity == FATAL) {
+  }
+  else if (severity == ERR || severity == FATAL)
+  {
     return erro_log_file_.is_open() ? erro_log_file_ : std::cerr;
   }
   return std::cout; // Print message
 }
 
 /*static*/
-std::ostream& Logger::Start(LogSeverity severity,
-                            const std::string& file,
+std::ostream &Logger::Start(LogSeverity severity,
+                            const std::string &file,
                             int line,
-                            const std::string& function) {
+                            const std::string &function)
+{
   time_t tm;
   time(&tm);
   char time_string[128];
@@ -91,12 +108,17 @@ std::ostream& Logger::Start(LogSeverity severity,
                              << " (" << function << ") " << std::flush;
 }
 
-Logger::~Logger() {
-  GetStream(severity_) << "\n" << std::flush;
-  if (severity_ == FATAL) {
+Logger::~Logger()
+{
+  GetStream(severity_) << "\n"
+                       << std::flush;
+  if (severity_ == FATAL)
+  {
     info_log_file_.close();
     warn_log_file_.close();
     erro_log_file_.close();
     abort();
   }
 }
+
+} // namespace xLearn

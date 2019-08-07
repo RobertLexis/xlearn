@@ -44,28 +44,39 @@ messages by their severities.
 //   }
 //------------------------------------------------------------------------------
 
-void InitializeLogger(const std::string& info_log_filename,
-                      const std::string& warn_log_filename,
-                      const std::string& erro_log_filename);
+namespace xLearn
+{
 
-enum LogSeverity { INFO, WARNING, ERR, FATAL };
+void InitializeLogger(const std::string &info_log_filename,
+                      const std::string &warn_log_filename,
+                      const std::string &erro_log_filename);
 
-class Logger {
-  friend void InitializeLogger(const std::string& info_log_filename,
-                               const std::string& warn_log_filename,
-                               const std::string& erro_log_filename);
- public:
+enum LogSeverity
+{
+  INFO,
+  WARNING,
+  ERR,
+  FATAL
+};
+
+class Logger
+{
+  friend void InitializeLogger(const std::string &info_log_filename,
+                               const std::string &warn_log_filename,
+                               const std::string &erro_log_filename);
+
+public:
   Logger(LogSeverity s) : severity_(s) {}
   ~Logger();
 
-  static std::ostream& GetStream(LogSeverity severity);
-  
-  static std::ostream& Start(LogSeverity severity,
-                             const std::string& file,
-                             int line,
-                             const std::string& function);
+  static std::ostream &GetStream(LogSeverity severity);
 
- private:
+  static std::ostream &Start(LogSeverity severity,
+                             const std::string &file,
+                             int line,
+                             const std::string &function);
+
+private:
   static std::ofstream info_log_file_;
   static std::ofstream warn_log_file_;
   static std::ofstream erro_log_file_;
@@ -94,7 +105,9 @@ class Logger {
 // destructor only causes the lose of the last message body; while the
 // message head will be there.
 //-----------------------------------------------------------------------------
-#define LOG(severity)                                                       \
+#define LOG(severity) \
   Logger(severity).Start(severity, __FILE__, __LINE__, __FUNCTION__)
 
-#endif   // XLEARN_BASE_LOGGING_H_
+} // namespace xLearn
+
+#endif // XLEARN_BASE_LOGGING_H_

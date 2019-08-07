@@ -29,26 +29,29 @@ This file defines the Predictor class.
 #include "src/reader/reader.h"
 #include "src/loss/loss.h"
 
-namespace xLearn {
+namespace xLearn
+{
 
 //------------------------------------------------------------------------------
 // Given a pre-trained model and test data, the predictor
 // will return the prediction output
 //------------------------------------------------------------------------------
-class Predictor {
- public:
+class Predictor
+{
+public:
   // Constructor and Desstructor
-  Predictor() { }
-  ~Predictor() { }
+  Predictor() {}
+  ~Predictor() {}
 
   // Invoke this function before we use this class
-  void Initialize(Reader* reader,
-                  Model* model,
-                  Loss* loss,
-                  const std::string& out,
+  void Initialize(Reader *reader,
+                  Model *model,
+                  Loss *loss,
+                  const std::string &out,
                   bool sign = false,
                   bool sigmoid = false,
-                  bool res_out = true) {
+                  bool res_out = true)
+  {
     CHECK_NOTNULL(reader);
     CHECK_NOTNULL(model);
     CHECK_NOTNULL(loss);
@@ -67,14 +70,21 @@ class Predictor {
   void Predict();
 
   // Get the results
-  inline std::vector<real_t> GetResult() {
+  inline std::vector<real_t> GetResult()
+  {
     return this->out_;
   }
 
- protected:
-  Reader* reader_;
-  Model* model_;
-  Loss* loss_;
+  // Reset out_
+  void Reset()
+  {
+    this->out_.clear();
+  }
+
+protected:
+  Reader *reader_;
+  Model *model_;
+  Loss *loss_;
   std::string out_file_;
   std::vector<real_t> out_;
   bool sign_;
@@ -82,17 +92,17 @@ class Predictor {
   bool res_out_;
 
   // Convert output by using the sigmoid function.
-  void sigmoid(std::vector<real_t>& in, 
-               std::vector<real_t>& out);
+  void sigmoid(std::vector<real_t> &in,
+               std::vector<real_t> &out);
 
   // Convert output to 0 and 1.
-  void sign(std::vector<real_t>& in, 
-            std::vector<real_t>& out);
+  void sign(std::vector<real_t> &in,
+            std::vector<real_t> &out);
 
- private:
+private:
   DISALLOW_COPY_AND_ASSIGN(Predictor);
-};  // class Predictor
+}; // class Predictor
 
-}  // namespace xLearn
+} // namespace xLearn
 
 #endif // XLEARN_SOLVER_INFERENCE_H_

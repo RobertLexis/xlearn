@@ -7,7 +7,7 @@ add_library(data STATIC model_parameters.cc)
 target_link_libraries(data ${STA_DEPS})
 
 # Build unittests.
-set(LIBS data base gtest)
+set(LIBS data base gtest glog)
 
 add_executable(data_structure_test data_structure_test.cc)
 target_link_libraries(data_structure_test gtest_main ${LIBS})

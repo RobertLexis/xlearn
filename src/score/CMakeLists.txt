@@ -8,7 +8,7 @@ linear_score.cc fm_score.cc ffm_score.cc)
 target_link_libraries(score ${STA_DEPS})
 
 # Build uinttests
-set(LIBS score data base gtest)
+set(LIBS score data base gtest glog)
 
 add_executable(score_function_test score_function_test.cc)
 target_link_libraries(score_function_test gtest_main ${LIBS})

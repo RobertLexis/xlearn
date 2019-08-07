@@ -8,9 +8,9 @@ target_link_libraries(reader ${STA_DEPS})
 
 # Build uinttests.
 if(NOT WIN32)
-set(LIBS reader data base pthread gtest)
+set(LIBS reader data base pthread gtest glog)
 else(WIN32)
-set(LIBS reader data base gtest)
+set(LIBS reader data base gtest glog)
 endif()
 
 add_executable(parser_test parser_test.cc)

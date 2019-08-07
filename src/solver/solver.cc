@@ -215,9 +215,9 @@ void Solver::init_log()
   {
     prefix += "_predict";
   }
-  InitializeLogger(StringPrintf("%s.INFO", prefix.c_str()),
-                   StringPrintf("%s.WARN", prefix.c_str()),
-                   StringPrintf("%s.ERROR", prefix.c_str()));
+  // InitializeLogger(StringPrintf("%s.INFO", prefix.c_str()),
+  //                  StringPrintf("%s.WARN", prefix.c_str()),
+  //                  StringPrintf("%s.ERROR", prefix.c_str()));
 }
 
 // Initialize training task
@@ -529,7 +529,7 @@ void Solver::read_problem()
   }
   else
   {
-    CHECK_NOTNULL(hyper_param_.test_dataset)
+    CHECK_NOTNULL(hyper_param_.test_dataset);
     reader_[0]->SetBlockSize(hyper_param_.block_size);
     reader_[0]->Initialize(hyper_param_.test_dataset);
     reader_[0]->SetShuffle(false);

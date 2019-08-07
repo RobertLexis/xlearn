@@ -66,6 +66,13 @@ link_directories(
   "${PROJECT_BINARY_DIR}/src/c_api"
 )
 
+include_directories(
+  /home/lifengcun/Codes/byte_dance/kobe/cpp3rdlib/glog/include/
+  /home/lifengcun/Codes/byte_dance/kobe/cpp3rdlib/double-conversion/include
+)
+
+link_directories(/home/lifengcun/Codes/byte_dance/kobe/build64_release/cpp3rdlib/glog)
+
 #-------------------------------------------------------------------------------
 # Declare packages in xLearn project.
 #-------------------------------------------------------------------------------
@@ -79,6 +86,6 @@ add_subdirectory(src/score)
 add_subdirectory(src/loss)
 add_subdirectory(src/solver)
 add_subdirectory(src/distributed)
-add_subdirectory(src/c_api)
-add_subdirectory(python-package)
+# add_subdirectory(src/c_api)
+# add_subdirectory(python-package)
 #add_subdirectory(R-package)

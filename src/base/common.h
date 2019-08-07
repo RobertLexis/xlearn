@@ -24,11 +24,13 @@ make programming convenient.
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>  // Linux, MacOSX, Cygwin and after VS2010 has this standard header.
+#include <stdint.h> // Linux, MacOSX, Cygwin and after VS2010 has this standard header.
 
 #include <limits>
 
-#include "src/base/logging.h"
+// #include "src/base/logging.h"
+#include <glog/logging.h>
+#include <double-conversion/utils.h>
 
 //------------------------------------------------------------------------------
 // In cases when the program must quit immediately (e.g., due to
@@ -45,88 +47,112 @@ make programming convenient.
 //
 // The GDB command 'where' will show you the stack trace.
 //------------------------------------------------------------------------------
+// namespace xLearn
+// {
 
-#define CHECK(a) if (!(a)) {                            \
-    LOG(ERR) << "CHECK failed "                         \
-               << __FILE__ << ":" << __LINE__ << "\n"   \
-               << #a << " = " << (a) << "\n";           \
-    abort();                                            \
-  }                                                     \
+/*
+#define CHECK(a)                                    \
+  if (!(a))                                         \
+  {                                                 \
+    LOG(ERR) << "CHECK failed "                     \
+             << __FILE__ << ":" << __LINE__ << "\n" \
+             << #a << " = " << (a) << "\n";         \
+    abort();                                        \
+  }
 
-#define CHECK_NOTNULL(a) if ((a) == NULL) {             \
-    LOG(ERR) << "CHECK failed "                         \
-               << __FILE__ << ":" << __LINE__ << "\n"   \
-               << #a << " == NULL \n";                  \
-    abort();                                            \
-  }                                                     \
+#define CHECK_NOTNULL(a)                            \
+  if ((a) == NULL)                                  \
+  {                                                 \
+    LOG(ERR) << "CHECK failed "                     \
+             << __FILE__ << ":" << __LINE__ << "\n" \
+             << #a << " == NULL \n";                \
+    abort();                                        \
+  }
 
-#define CHECK_NULL(a) if ((a) != NULL) {                \
-    LOG(ERR) << "CHECK failed "                         \
-               << __FILE__ << ":" << __LINE__ << "\n"   \
-               << #a << " = " << (a) << "\n";           \
-    abort();                                            \
-  }                                                     \
+#define CHECK_NULL(a)                               \
+  if ((a) != NULL)                                  \
+  {                                                 \
+    LOG(ERR) << "CHECK failed "                     \
+             << __FILE__ << ":" << __LINE__ << "\n" \
+             << #a << " = " << (a) << "\n";         \
+    abort();                                        \
+  }
 
-#define CHECK_EQ(a, b) if (!((a) == (b))) {             \
-    LOG(ERR) << "CHECK_EQ failed "                      \
-               << __FILE__ << ":" << __LINE__ << "\n"   \
-               << #a << " = " << (a) << "\n"            \
-               << #b << " = " << (b) << "\n";           \
-    abort();                                            \
-  }                                                     \
+#define CHECK_EQ(a, b)                              \
+  if (!((a) == (b)))                                \
+  {                                                 \
+    LOG(ERR) << "CHECK_EQ failed "                  \
+             << __FILE__ << ":" << __LINE__ << "\n" \
+             << #a << " = " << (a) << "\n"          \
+             << #b << " = " << (b) << "\n";         \
+    abort();                                        \
+  }
 
-#define CHECK_NE(a, b) if (!((a) != (b))) {             \
-    LOG(ERR) << "CHECK_NE failed "                      \
-               << __FILE__ << ":" << __LINE__ << "\n"   \
-               << #a << " = " << (a) << "\n"            \
-               << #b << " = " << (b) << "\n";           \
-    abort();                                            \
-  }                                                     \
+#define CHECK_NE(a, b)                              \
+  if (!((a) != (b)))                                \
+  {                                                 \
+    LOG(ERR) << "CHECK_NE failed "                  \
+             << __FILE__ << ":" << __LINE__ << "\n" \
+             << #a << " = " << (a) << "\n"          \
+             << #b << " = " << (b) << "\n";         \
+    abort();                                        \
+  }
 
-#define CHECK_GT(a, b) if (!((a) > (b))) {              \
-    LOG(ERR) << "CHECK_GT failed "                      \
-               << __FILE__ << ":" << __LINE__ << "\n"   \
-               << #a << " = " << (a) << "\n"            \
-               << #b << " = " << (b) << "\n";           \
-    abort();                                            \
-  }                                                     \
+#define CHECK_GT(a, b)                              \
+  if (!((a) > (b)))                                 \
+  {                                                 \
+    LOG(ERR) << "CHECK_GT failed "                  \
+             << __FILE__ << ":" << __LINE__ << "\n" \
+             << #a << " = " << (a) << "\n"          \
+             << #b << " = " << (b) << "\n";         \
+    abort();                                        \
+  }
 
-#define CHECK_LT(a, b) if (!((a) < (b))) {              \
-    LOG(ERR) << "CHECK_LT failed "                      \
-               << __FILE__ << ":" << __LINE__ << "\n"   \
-               << #a << " = " << (a) << "\n"            \
-               << #b << " = " << (b) << "\n";           \
-    abort();                                            \
-  }                                                     \
+#define CHECK_LT(a, b)                              \
+  if (!((a) < (b)))                                 \
+  {                                                 \
+    LOG(ERR) << "CHECK_LT failed "                  \
+             << __FILE__ << ":" << __LINE__ << "\n" \
+             << #a << " = " << (a) << "\n"          \
+             << #b << " = " << (b) << "\n";         \
+    abort();                                        \
+  }
 
-#define CHECK_GE(a, b) if (!((a) >= (b))) {             \
-    LOG(ERR) << "CHECK_GE failed "                      \
-               << __FILE__ << ":" << __LINE__ << "\n"   \
-               << #a << " = " << (a) << "\n"            \
-               << #b << " = " << (b) << "\n";           \
-    abort();                                            \
-  }                                                     \
+#define CHECK_GE(a, b)                              \
+  if (!((a) >= (b)))                                \
+  {                                                 \
+    LOG(ERR) << "CHECK_GE failed "                  \
+             << __FILE__ << ":" << __LINE__ << "\n" \
+             << #a << " = " << (a) << "\n"          \
+             << #b << " = " << (b) << "\n";         \
+    abort();                                        \
+  }
 
-#define CHECK_LE(a, b) if (!((a) <= (b))) {             \
-    LOG(ERR) << "CHECK_LE failed "                      \
-               << __FILE__ << ":" << __LINE__ << "\n"   \
-               << #a << " = " << (a) << "\n"            \
-               << #b << " = " << (b) << "\n";           \
-    abort();                                            \
-  }                                                     \
-                                                        \
+#define CHECK_LE(a, b)                              \
+  if (!((a) <= (b)))                                \
+  {                                                 \
+    LOG(ERR) << "CHECK_LE failed "                  \
+             << __FILE__ << ":" << __LINE__ << "\n" \
+             << #a << " = " << (a) << "\n"          \
+             << #b << " = " << (b) << "\n";         \
+    abort();                                        \
+  }                                                 \
+                                                    \
 // Copied from glog.h
-#define CHECK_DOUBLE_EQ(a, b)                           \
-  do {                                                  \
-    CHECK_LE((a), (b)+0.000000000000001L);              \
-    CHECK_GE((a), (b)-0.000000000000001L);              \
+#define CHECK_DOUBLE_EQ(a, b)                \
+  do                                         \
+  {                                          \
+    CHECK_LE((a), (b) + 0.000000000000001L); \
+    CHECK_GE((a), (b)-0.000000000000001L);   \
   } while (0)
 
-#define CHECK_NEAR(a, b, margin)                        \
-  do {                                                  \
-    CHECK_LE((a), (b)+(margin));                        \
-    CHECK_GE((a), (b)-(margin));                        \
+#define CHECK_NEAR(a, b, margin)   \
+  do                               \
+  {                                \
+    CHECK_LE((a), (b) + (margin)); \
+    CHECK_GE((a), (b) - (margin)); \
   } while (0)
+*/
 
 //------------------------------------------------------------------------------
 // This marcro is used to disallow copy constructor and assign operator in
@@ -146,9 +172,11 @@ make programming convenient.
 // };
 //------------------------------------------------------------------------------
 
-#define DISALLOW_COPY_AND_ASSIGN(TypeName)              \
-  TypeName(const TypeName&);                            \
-  void operator=(const TypeName&)
+/*
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName &);              \
+  void operator=(const TypeName &)
+*/
 
 //------------------------------------------------------------------------------
 // Basis POD types.
@@ -157,22 +185,22 @@ make programming convenient.
 typedef unsigned int uint;
 
 #ifdef _MSC_VER
-typedef __int8  int8;
+typedef __int8 int8;
 typedef __int16 int16;
 typedef __int32 int32;
 typedef __int64 int64;
 
-typedef unsigned __int8  uint8;
+typedef unsigned __int8 uint8;
 typedef unsigned __int16 uint16;
 typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 #else
-typedef int8_t  int8;
+typedef int8_t int8;
 typedef int16_t int16;
 typedef int32_t int32;
 typedef int64_t int64;
 
-typedef uint8_t  uint8;
+typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
@@ -192,4 +220,6 @@ static const float kFloatMin = std::numeric_limits<float>::min();
 static const float kVerySmallNumber = 1e-15;
 static const double kVerySmallNumberDouble = 1e-15;
 
-#endif  // XLEARN_BASE_COMMON_H_
+// } // namespace xLearn
+
+#endif // XLEARN_BASE_COMMON_H_

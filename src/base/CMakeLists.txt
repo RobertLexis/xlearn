@@ -1,15 +1,20 @@
 # Set output library.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/test/base)
 
+# include_directories(/home/lifengcun/Codes/byte_dance/kobe/cpp3rdlib/glog/include/ /home/lifengcun/Codes/byte_dance/kobe/cpp3rdlib/double-conversion/include)
+# link_directories(/home/lifengcun/Codes/byte_dance/kobe/build64_release/cpp3rdlib/glog)
+
 # Build static library
-add_library(base STATIC logging.cc stringprintf.cc split_string.cc 
+add_library(base STATIC 
+# logging.cc 
+stringprintf.cc split_string.cc 
 levenshtein_distance.cc timer.cc format_print.cc)
 
 # Build unittests.
 if(NOT WIN32)
-set(LIBS base pthread gtest)
+set(LIBS base pthread gtest glog)
 else(WIN32)
-set(LIBS base gtest)
+set(LIBS base gtest glog)
 endif()
 
 add_executable(levenshtein_distance_test levenshtein_distance_test.cc)

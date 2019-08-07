@@ -7,7 +7,7 @@ add_library(distributed STATIC parameter_server.cc)
 target_link_libraries(distributed ${STA_DEPS})
 
 # Build unittests.
-set(LIBS distributed data base gtest)
+set(LIBS distributed data base gtest glog)
 
 add_executable(parameter_server_test parameter_server_test.cc)
 target_link_libraries(parameter_server_test gtest_main ${LIBS})

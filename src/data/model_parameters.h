@@ -28,7 +28,8 @@ This file defines the class of model parameters.
 
 #include "src/base/common.h"
 #include "src/data/data_structure.h"
-#include "src/base/logging.h"
+// #include "src/base/logging.h"
+#include <glog/logging.h>
 
 namespace xLearn
 {

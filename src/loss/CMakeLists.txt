@@ -8,7 +8,7 @@ cross_entropy_loss.cc metric.cc)
 target_link_libraries(loss ${STA_DEPS})
 
 # Build uinttests
-set(LIBS loss score data base gtest)
+set(LIBS loss score data base gtest glog)
 
 add_executable(loss_test loss_test.cc)
 target_link_libraries(loss_test gtest_main ${LIBS})

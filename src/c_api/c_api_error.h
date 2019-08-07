@@ -23,40 +23,50 @@ This file defines the error handling for C API.
 
 #include <string>
 
-#include "src/base/logging.h"
+// #include "src/base/logging.h"
+#include <glog/logging.h>
 #include "src/c_api/c_api.h"
 
 // Macro to guard begining and end section of all functions
-#define API_BEGIN() try {
+#define API_BEGIN() \
+  try               \
+  {
 
-// Every function starts with API_BEGIN(); 
+// Every function starts with API_BEGIN();
 // and finishes with API_END() or API_END_HANDLE_ERROR
-#define API_END()                                              \
-  } catch(std::runtime_error &_except_) {                      \
-    return XLAPIHandleException(_except_);                     \
-} return 0;
+#define API_END()                          \
+  }                                        \
+  catch (std::runtime_error & _except_)    \
+  {                                        \
+    return XLAPIHandleException(_except_); \
+  }                                        \
+  return 0;
 
-// Every function starts with API_BEGIN(); 
+// Every function starts with API_BEGIN();
 // and finishes with API_END() or API_END_HANDLE_ERROR
 // The finally clause contains procedure to cleanup states
 // when an error happens.
-#define API_END_HANDLE_ERROR(Finalize)                        \
-  } catch(std::runtime_error &_except_) {                     \
-    Finalize;                                                 \
-    return XLAPIHandleException(_except_);                    \
-} return 0;
+#define API_END_HANDLE_ERROR(Finalize)     \
+  }                                        \
+  catch (std::runtime_error & _except_)    \
+  {                                        \
+    Finalize;                              \
+    return XLAPIHandleException(_except_); \
+  }                                        \
+  return 0;
 
 // Get the last error message needed by C API
-XL_DLL const char* XLearnGetLastError();
+XL_DLL const char *XLearnGetLastError();
 
 // Set the last error message needed by C API
-void XLearnAPISetLastError(const char* msg);
+void XLearnAPISetLastError(const char *msg);
 
 // Handle exception thrown out and return value
 // of API after exception is handled
-inline int XLAPIHandleException(const std::runtime_error &e) {
+inline int XLAPIHandleException(const std::runtime_error &e)
+{
   XLearnAPISetLastError(e.what());
   return -1;
 }
 
-#endif  // C_API_C_API_ERROR_H_
+#endif // C_API_C_API_ERROR_H_

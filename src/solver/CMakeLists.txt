@@ -12,9 +12,9 @@ endif()
 
 # Build xlearn exe
 if(NOT WIN32)
-set(LIBS solver reader loss score data base pthread)
+set(LIBS solver reader loss score data base pthread glog)
 else(WIN32)
-set(LIBS solver reader loss score data base Ws2_32)
+set(LIBS solver reader loss score data base Ws2_32 glog)
 endif()
 
 add_executable(xlearn_train train_main.cc)
